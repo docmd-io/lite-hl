@@ -1,0 +1,44 @@
+{
+  "name": "lite-hl",
+  "version": "0.1.0",
+  "description": "A universal, zero-config, heuristic code tokenizer and highlighter.",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "keywords": [
+    "syntax",
+    "highlighter",
+    "highlight",
+    "zero-config",
+    "universal",
+    "minimalist",
+    "fast",
+    "lightweight",
+    "typescript",
+    "javascript",
+    "nodejs",
+    "browser",
+    "docmd"
+  ],
+  "author": {
+    "name": "Ghazi",
+    "url": "https://mgks.dev"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/docmd-io/docmd.git",
+    "directory": "lite-hl"
+  },
+  "bugs": {
+    "url": "https://github.com/docmd-io/docmd/issues"
+  },
+  "homepage": "https://docmd.io",
+  "funding": "https://github.com/sponsors/mgks",
+  "license": "MIT"
+}
