@@ -28,8 +28,9 @@ To maintain its ultra-light footprint, `lite-hl` makes specific engineering trad
 
 *   **Ultra-Lightweight**: At under 10KB, it is a fraction of the size of `highlight.js`.
 *   **Zero-Config Coverage**: Supports every programming language automatically. There is no need to "register" or import language definitions.
+*   **Deep Shell Script Support**: Robust parsing of Bash/Shell conventions, recognizing 60+ common utilities (`grep`, `awk`, `docker`, etc.) and dynamic variables (`$VAR`, `${VAR}`).
 *   **High Performance**: Tokenization happens in a single regex pass. It is optimized for large-scale documentation generators and real-time previews.
-*   **Legacy Compatibility**: natively supports a `mimicHljs` mode, allowing you to use existing `highlight.js` CSS themes (like GitHub, Atom, or Monokai) as a drop-in replacement.
+*   **Legacy Compatibility**: natively supports a `mimicHljs` mode, allowing you to use existing `highlight.js` CSS themes (like GitHub, Atom, or Monokai) exactly as they are without modification.
 *   **Runtime Agnostic**: Works perfectly in Node.js, the browser, and Edge environments.
 
 ## Installation
