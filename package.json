@@ -1,6 +1,6 @@
 {
   "name": "lite-hl",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A universal, zero-config, heuristic code tokenizer and highlighter.",
   "type": "module",
   "files": [
@@ -8,6 +8,14 @@
   ],
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      }
+    }
+  },
   "scripts": {
     "build": "tsc"
   },
