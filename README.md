@@ -86,4 +86,4 @@ const { value } = highlight(code, { mimicHljs: true });
 
 ## License
 
-MIT - Developed under the docmd ecosystem by [Ghazi](https://mgks.dev).
+MIT - Developed under the docmd ecosystem.
