@@ -18,7 +18,7 @@ const COMMON_KEYWORDS = [
   'try', 'catch', 'finally', 'throw', 'class', 'function', 'var', 'let', 'const', 'import', 'export', 'from',
   'public', 'private', 'protected', 'static', 'extends', 'implements', 'new', 'this', 'super',
   'typeof', 'instanceof', 'in', 'of', 'yield', 'await', 'async', 'interface', 'type', 'enum',
-  'void', 'null', 'undefined', 'true', 'false', 'def', 'pass', 'None', 'True', 'False',
+  'void', 'undefined', 'def', 'pass',
   'match', 'with', 'as', 'struct', 'func', 'go', 'chan', 'defer', 'select', 'fallthrough',
   'namespace', 'using', 'pkg', 'mod', 'require', 'fn', 'pub', 'mut', 'impl', 'loop', 'unsafe',
   'trait', 'where', 'macro_rules', 'use', 'int', 'float', 'double', 'char', 'bool',
@@ -31,6 +31,10 @@ const COMMON_KEYWORDS = [
   'apt', 'yum', 'brew', 'cargo'
 ].join('|');
 
+// Boolean and null constants get their own token type so themes can colour them
+// distinctly (highlight.js uses hljs-literal for true/false/null/None/nil).
+const LITERALS = ['true', 'false', 'null', 'None', 'True', 'False', 'nil'].join('|');
+
 // We use named capture groups so we can easily map matches back to their token types.
 // Order is critical: comments first, then strings, then numbers, then keywords, etc.
 // [^\r\n] handles both Unix (LF) and Windows (CRLF) line endings (fixes issue #3).
@@ -38,6 +42,7 @@ const UNIVERSAL_REGEX = new RegExp(
   `(?<comment>\\/\\/[^\\r\\n]*|\\/\\*[\\s\\S]*?\\*\\/|#[^\\r\\n]*|<!--[\\s\\S]*?-->)` +
   `|(?<string>"(?:\\\\.|[^"\\\\])*"|'(?:\\\\.|[^'\\\\])*'|\`(?:\\\\.|[^\`\\\\])*\`)` +
   `|(?<number>\\b\\d+(?:\\.\\d+)?(?:[eE][+-]?\\d+)?\\b|\\b0x[a-fA-F0-9]+\\b)` +
+  `|(?<literal>\\b(?:${LITERALS})\\b)` +
   `|(?<keyword>\\b(?:${COMMON_KEYWORDS})\\b)` +
   `|(?<variable>\\$[a-zA-Z0-9_$]+|\\$\\{[a-zA-Z0-9_$]+\\})` +
   `|(?<function>[a-zA-Z_$][a-zA-Z0-9_$]*(?=\\s*\\())` +
@@ -85,12 +90,12 @@ export function highlight(code: string, options: HighlightOptions = {}): { value
     // Process Token Class
     let className = tokenType;
     if (isHljs) {
-      // Remap token types to match highlight.js CSS class names
+      // Remap token types to match highlight.js CSS class names.
+      // comment/string/number/keyword/literal keep their hljs-* names as-is.
       if (tokenType === 'function') className = 'title function_';
       else if (tokenType === 'property') className = 'attr';
-      else if (tokenType === 'operator') className = 'punctuation';
+      else if (tokenType === 'operator') className = 'operator';
       else if (tokenType === 'variable') className = 'variable';
-      // 'comment', 'string', 'number', 'keyword' stay as-is (already match hljs names)
 
       className = `hljs-${className}`;
     }

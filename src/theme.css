@@ -1,0 +1,70 @@
+/*
+ * lite-hl default theme.
+ * Opt-in: import this file once, or copy its contents into your own stylesheet.
+ * Uses CSS custom properties so a single token can be recoloured without
+ * importing a whole theme file. honours the user's OS dark-mode preference.
+ *
+ * Usage:
+ *   <link rel="stylesheet" href="lite-hl.css">
+ *   import 'lite-hl/dist/lite-hl.css';
+ *
+ * Override any token inline, e.g. to match your brand:
+ *   :root { --hljs-keyword: #c586c0; }
+ */
+
+:root {
+  /* Light palette (GitHub-inspired, WCAG AA on white). */
+  --lite-hl-bg: transparent;
+  --lite-hl-comment: #6a737d;
+  --lite-hl-string: #032f62;
+  --lite-hl-number: #005cc5;
+  --lite-hl-keyword: #d73a49;
+  --lite-hl-literal: #005cc5;
+  --lite-hl-function: #6f42c1;
+  --lite-hl-variable: #e36209;
+  --lite-hl-attr: #005cc5;
+  --lite-hl-operator: #d73a49;
+  --lite-hl-punctuation: #6a737d;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Dark palette (GitHub-dark-inspired, AA on #0d1117). */
+    --lite-hl-bg: transparent;
+    --lite-hl-comment: #8b949e;
+    --lite-hl-string: #a5d6ff;
+    --lite-hl-number: #79c0ff;
+    --lite-hl-keyword: #ff7b72;
+    --lite-hl-literal: #79c0ff;
+    --lite-hl-function: #d2a8ff;
+    --lite-hl-variable: #ffa657;
+    --lite-hl-attr: #79c0ff;
+    --lite-hl-operator: #ff7b72;
+    --lite-hl-punctuation: #8b949e;
+  }
+}
+
+/* Container. Keeping it class-based avoids clashing with raw <pre> styling. */
+.hljs,
+.hljs-subst {
+  color: #24292e;
+  background: var(--lite-hl-bg);
+}
+@media (prefers-color-scheme: dark) {
+  .hljs,
+  .hljs-subst {
+    color: #c9d1d9;
+  }
+}
+
+/* Token classes emitted by lite-hl (hljs-* names for theme compatibility). */
+.hljs-comment { color: var(--lite-hl-comment); font-style: italic; }
+.hljs-string  { color: var(--lite-hl-string); }
+.hljs-number  { color: var(--lite-hl-number); }
+.hljs-keyword { color: var(--lite-hl-keyword); font-weight: 600; }
+.hljs-literal { color: var(--lite-hl-literal); font-weight: 600; }
+.hljs-title.function_ { color: var(--lite-hl-function); }
+.hljs-variable { color: var(--lite-hl-variable); }
+.hljs-attr { color: var(--lite-hl-attr); }
+.hljs-operator { color: var(--lite-hl-operator); }
+.hljs-punctuation { color: var(--lite-hl-punctuation); }

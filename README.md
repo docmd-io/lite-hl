@@ -84,6 +84,28 @@ const { value } = highlight(code, { mimicHljs: true });
 - `value` (string): Securely escaped HTML with tokenized spans.
 - `language` (string): The detected or provided language.
 
+## Default Theme
+
+`lite-hl` ships an optional CSS theme with built-in light/dark mode support. It uses CSS custom properties, so you can recolour any single token without importing a whole theme file.
+
+```html
+<link rel="stylesheet" href="node_modules/lite-hl/dist/lite-hl.css">
+```
+
+Or in a bundler:
+
+```javascript
+import 'lite-hl/theme.css';
+```
+
+The theme honours the user's OS preference via `@media (prefers-color-scheme: dark)` and switches automatically. Override any token inline:
+
+```css
+:root { --lite-hl-keyword: #c586c0; }
+```
+
+Both `mimicHljs` mode (default) and the bundled theme use the standard `hljs-*` class names, so any existing highlight.js CSS theme remains a drop-in replacement if you prefer your own palette.
+
 ## License
 
 MIT - Developed under the docmd ecosystem.

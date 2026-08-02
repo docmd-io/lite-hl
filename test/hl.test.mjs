@@ -89,6 +89,55 @@ describe('failsafes', () => {
   });
 });
 
+describe('token class mapping (hljs compatibility)', () => {
+  it('splits true/false/null into hljs-literal, not hljs-keyword', () => {
+    const { value } = highlight('const x = true; let y = false; let z = null;');
+    assert.match(value, /hljs-literal">true/);
+    assert.match(value, /hljs-literal">false/);
+    assert.match(value, /hljs-literal">null/);
+    // They must NOT be tagged as keywords.
+    assert.ok(!/hljs-keyword">true/.test(value));
+    assert.ok(!/hljs-keyword">null/.test(value));
+  });
+
+  it('maps operators to hljs-operator, not hljs-punctuation', () => {
+    const { value } = highlight('x = 1 + 2');
+    assert.match(value, /hljs-operator">=/);
+    assert.match(value, /hljs-operator">\+/);
+    assert.ok(!/hljs-punctuation">=/.test(value), '= wrongly tagged as punctuation');
+  });
+
+  it('keeps keywords as hljs-keyword', () => {
+    const { value } = highlight('const x = 1');
+    assert.match(value, /hljs-keyword">const/);
+  });
+
+  it('keeps function calls as hljs-title function_', () => {
+    const { value } = highlight('foo()');
+    assert.match(value, /hljs-title function_">foo/);
+  });
+
+  it('honours raw token names when mimicHljs is false', () => {
+    const { value } = highlight('true = 1', { mimicHljs: false });
+    assert.match(value, /class="literal">true/);
+    assert.match(value, /class="operator">=/);
+  });
+});
+
+describe('default theme CSS', () => {
+  it('ships dist/lite-hl.css with the expected custom properties', async () => {
+    const { readFile } = await import('node:fs/promises');
+    const cssUrl = new URL('../dist/lite-hl.css', import.meta.url);
+    const css = await readFile(cssUrl, 'utf8');
+    // Every token class the JS emits must have a colour rule in the theme.
+    for (const cls of ['--lite-hl-comment', '--lite-hl-string', '--lite-hl-number', '--lite-hl-keyword', '--lite-hl-literal', '--lite-hl-function', '--lite-hl-variable', '--lite-hl-attr', '--lite-hl-operator', '--lite-hl-punctuation']) {
+      assert.ok(css.includes(cls), `theme missing ${cls}`);
+    }
+    // Must include a dark-mode block.
+    assert.ok(css.includes('prefers-color-scheme: dark'), 'theme missing dark mode');
+  });
+});
+
 describe('brute fuzz: adversarial input never leaks raw markup', () => {
   // Invariant: highlight() must never throw on string input, and the output must
   // never contain an executable <script> or an on* event handler from the input.
