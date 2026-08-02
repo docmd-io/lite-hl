@@ -22,13 +22,20 @@ const COMMON_KEYWORDS = [
   'match', 'with', 'as', 'struct', 'func', 'go', 'chan', 'defer', 'select', 'fallthrough',
   'namespace', 'using', 'pkg', 'mod', 'require', 'fn', 'pub', 'mut', 'impl', 'loop', 'unsafe',
   'trait', 'where', 'macro_rules', 'use', 'int', 'float', 'double', 'char', 'bool',
-  'bash', 'sh', 'sudo', 'grep', 'sed', 'awk', 'ls', 'cd', 'cp', 'mv', 'rm', 'mkdir', 'chmod', 'chown', 'git', 'pnpm', 'npm', 'yarn', 'node', 'curl', 'wget', 'echo', 'printf', 'cat', 'grep', 'find', 'xargs', 'alias', 'export', 'set', 'unset', 'read', 'source', 'type', 'which', 'whoami', 'id', 'groups', 'ps', 'top', 'kill', 'df', 'du', 'free', 'uname', 'hostname', 'ip', 'ping', 'ssh', 'scp', 'rsync', 'tar', 'gzip', 'gunzip', 'zip', 'unzip', 'sudo', 'systemctl', 'journalctl', 'docker', 'kubectl', 'apt', 'yum', 'brew', 'cargo'
+  // Shell utilities (deduplicated): keeps robust Bash/Shell coverage.
+  'bash', 'sh', 'sudo', 'grep', 'sed', 'awk', 'ls', 'cd', 'cp', 'mv', 'rm', 'mkdir', 'chmod', 'chown',
+  'git', 'pnpm', 'npm', 'yarn', 'node', 'curl', 'wget', 'echo', 'printf', 'cat', 'find', 'xargs',
+  'alias', 'export', 'set', 'unset', 'read', 'source', 'type', 'which', 'whoami', 'id', 'groups',
+  'ps', 'top', 'kill', 'df', 'du', 'free', 'uname', 'hostname', 'ip', 'ping', 'ssh', 'scp', 'rsync',
+  'tar', 'gzip', 'gunzip', 'zip', 'unzip', 'systemctl', 'journalctl', 'docker', 'kubectl',
+  'apt', 'yum', 'brew', 'cargo'
 ].join('|');
 
 // We use named capture groups so we can easily map matches back to their token types.
 // Order is critical: comments first, then strings, then numbers, then keywords, etc.
+// [^\r\n] handles both Unix (LF) and Windows (CRLF) line endings (fixes issue #3).
 const UNIVERSAL_REGEX = new RegExp(
-  `(?<comment>\\/\\/[^\\n]*|\\/\\*[\\s\\S]*?\\*\\/|#[^\\n]*|<!--[\\s\\S]*?-->)` +
+  `(?<comment>\\/\\/[^\\r\\n]*|\\/\\*[\\s\\S]*?\\*\\/|#[^\\r\\n]*|<!--[\\s\\S]*?-->)` +
   `|(?<string>"(?:\\\\.|[^"\\\\])*"|'(?:\\\\.|[^'\\\\])*'|\`(?:\\\\.|[^\`\\\\])*\`)` +
   `|(?<number>\\b\\d+(?:\\.\\d+)?(?:[eE][+-]?\\d+)?\\b|\\b0x[a-fA-F0-9]+\\b)` +
   `|(?<keyword>\\b(?:${COMMON_KEYWORDS})\\b)` +
