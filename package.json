@@ -1,6 +1,6 @@
 {
   "name": "lite-hl",
-  "version": "0.1.5",
+  "version": "0.2.1",
   "description": "A universal, zero-config, heuristic code tokenizer and highlighter.",
   "type": "module",
   "files": [
