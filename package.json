@@ -1,7 +1,7 @@
 {
   "name": "lite-hl",
   "version": "0.2.1",
-  "description": "A universal, zero-config, heuristic code tokenizer and highlighter.",
+  "description": "A universal, zero-config, heuristic code tokenizer and syntax highlighter.",
   "type": "module",
   "files": [
     "dist"
@@ -33,11 +33,15 @@
     "minimalist",
     "fast",
     "lightweight",
+    "code-highlighter",
+    "tokenizer",
+    "prism",
+    "hljs",
+    "docmd",
     "typescript",
     "javascript",
     "nodejs",
-    "browser",
-    "docmd"
+    "browser"
   ],
   "author": {
     "name": "Ghazi",
@@ -45,13 +49,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/docmd-io/lite-hl.git",
-    "directory": "lite-hl"
+    "url": "git+https://github.com/docmd-io/lite-hl.git"
   },
   "bugs": {
     "url": "https://github.com/docmd-io/lite-hl/issues"
   },
   "homepage": "https://docmd.io",
-  "funding": "https://github.com/sponsors/mgks",
+  "funding": "https://github.com/sponsors/docmd-io",
   "license": "MIT"
 }
