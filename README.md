@@ -28,9 +28,11 @@ To maintain its ultra-light footprint, `lite-hl` makes specific engineering trad
 
 *   **Ultra-Lightweight**: At under 10KB, it is a fraction of the size of `highlight.js`.
 *   **Zero-Config Coverage**: Supports every programming language automatically. There is no need to "register" or import language definitions.
+*   **Smart Plaintext Bypass**: Native passthrough for plain text code blocks (`plaintext`, `text`, `txt`, `none`, `raw`, `nohighlight`, `no-highlight`), safely escaping HTML without injecting false keyword styling.
+*   **Structural Markdown Highlighting**: Intelligent tokenization for `markdown` / `md` code blocks (headings, bold, italic, code spans, quotes, bullets, links) without false-positive keyword matches on normal prose.
 *   **Deep Shell Script Support**: Robust parsing of Bash/Shell conventions, recognizing 60+ common utilities (`grep`, `awk`, `docker`, etc.) and dynamic variables (`$VAR`, `${VAR}`).
 *   **High Performance**: Tokenization happens in a single regex pass. It is optimized for large-scale documentation generators and real-time previews.
-*   **Legacy Compatibility**: natively supports a `mimicHljs` mode, allowing you to use existing `highlight.js` CSS themes (like GitHub, Atom, or Monokai) exactly as they are without modification.
+*   **Legacy Compatibility**: Natively supports a `mimicHljs` mode, allowing you to use existing `highlight.js` CSS themes (like GitHub, Atom, or Monokai) exactly as they are without modification.
 *   **Runtime Agnostic**: Works perfectly in Node.js, the browser, and Edge environments.
 
 ## Installation
@@ -61,6 +63,39 @@ const { value } = highlight(code, { mimicHljs: true });
 // Generates spans with 'hljs-' prefixed classes.
 ```
 
+## Smart Language Handling
+
+### Plaintext & Unstyled Blocks
+
+When displaying logs, terminal output, configuration snippets, or raw plain text, traditional heuristic engines often mistakenly highlight English words like `while`, `for`, `in`, or `to` as programming keywords.
+
+`lite-hl` provides a native bypass for plain text languages:
+```javascript
+import { highlight } from 'lite-hl';
+
+const output = highlight('for each item in our report, while pending...', {
+  language: 'plaintext'
+});
+// Safely HTML-escapes content and emits 0 token spans (no false keyword colors).
+```
+
+Recognized plain text aliases:
+- `plaintext`, `text`, `txt`, `none`, `raw`, `nohighlight`, `no-highlight`
+
+### Structural Markdown Highlighting
+
+When `language: 'markdown'` or `language: 'md'` is specified, `lite-hl` activates a specialized structural Markdown scanner instead of programming heuristics:
+- **Headings** (`# Title`) → `hljs-section`
+- **Bold text** (`**text**`) → `hljs-strong`
+- **Italic text** (`*text*`) → `hljs-emphasis`
+- **Inline code** (`` `code` ``) → `hljs-code`
+- **Blockquotes** (`> quote`) → `hljs-quote`
+- **Bullet lists** (`- item`, `* item`) → `hljs-bullet`
+- **Hyperlinks** (`[text](url)`) → `hljs-link`
+- **Containers / Tags** (`::: tag`, `<tag>`) → `hljs-tag`
+
+Normal sentence structure within Markdown documents remains uncolored, eliminating false-positive programming keyword styling across your documentation.
+
 ## Comparisons
 
 | Feature | highlight.js | lite-hl |
@@ -77,8 +112,8 @@ const { value } = highlight(code, { mimicHljs: true });
 **Arguments:**
 - `code` (string): The raw source code to tokenize.
 - `options` (object):
-    - `language` (string): Metadata for attribution (optional).
-    - `mimicHljs` (boolean, default `true`): Use `hljs-` class prefixes.
+    - `language` (string, optional): Language identifier. Supports programming languages (e.g. `javascript`, `python`, `rust`, `bash`), Markdown (`markdown`, `md`), or plaintext variants (`plaintext`, `text`, `txt`, `none`, `raw`, `nohighlight`, `no-highlight`).
+    - `mimicHljs` (boolean, default `true`): Use `hljs-` class prefixes for drop-in CSS theme compatibility. When set to `false`, raw token class names (e.g. `token-keyword`, `token-string`) are emitted.
 
 **Returns:**
 - `value` (string): Securely escaped HTML with tokenized spans.
