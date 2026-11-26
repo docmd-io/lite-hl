@@ -183,3 +183,51 @@ describe('brute fuzz: large input performance', () => {
     assert.ok(ms < 2000, `took ${ms}ms, expected < 2s`);
   });
 });
+
+describe('smart codeblock handling: plaintext bypass', () => {
+  it('skips tokenization and emits zero spans for plaintext languages', () => {
+    const plainLangs = ['plaintext', 'text', 'txt', 'none', 'raw', 'nohighlight', 'no-highlight'];
+    const sample = 'if (a < b) { return "hello"; } ///\\/// [1, 2]';
+    for (const lang of plainLangs) {
+      const res = highlight(sample, { language: lang });
+      assert.equal(res.language, lang);
+      assert.ok(!res.value.includes('<span'), `expected no spans for ${lang}`);
+      assert.ok(res.value.includes('&lt;'), `expected html escaping for ${lang}`);
+    }
+  });
+
+  it('escapes html safely in plaintext bypass', () => {
+    const res = highlight('<script>alert("x")</script>', { language: 'plaintext' });
+    assert.equal(res.value, '&lt;script&gt;alert(&quot;x&quot;)&lt;/script&gt;');
+  });
+});
+
+describe('smart codeblock handling: markdown structure', () => {
+  it('highlights markdown elements without false-positive programming keyword spans', () => {
+    const md = [
+      '# Introduction to Docs',
+      '',
+      'If you want to return to home, click below:',
+      '- Item 1 with `code`',
+      '> Blockquote here',
+      '**Important note** and *italic* text',
+      '[Link Text](https://docmd.io)'
+    ].join('\n');
+
+    const res = highlight(md, { language: 'markdown' });
+    assert.equal(res.language, 'markdown');
+    // Markdown structural elements are highlighted
+    assert.match(res.value, /hljs-section/);
+    assert.match(res.value, /hljs-code/);
+    assert.match(res.value, /hljs-quote/);
+    assert.match(res.value, /hljs-strong/);
+    assert.match(res.value, /hljs-emphasis/);
+    assert.match(res.value, /hljs-link/);
+    assert.match(res.value, /hljs-bullet/);
+
+    // English words in prose like "If", "for", "return" must NOT be tagged as code keywords
+    assert.ok(!res.value.includes('hljs-keyword">If<'), 'prose "If" was falsely tagged as keyword');
+    assert.ok(!res.value.includes('hljs-keyword">return<'), 'prose "return" was falsely tagged as keyword');
+    assert.ok(!res.value.includes('hljs-keyword">for<'), 'prose "for" was falsely tagged as keyword');
+  });
+});

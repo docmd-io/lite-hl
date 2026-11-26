@@ -31,9 +31,33 @@ const COMMON_KEYWORDS = [
   'apt', 'yum', 'brew', 'cargo'
 ].join('|');
 
+// Languages that should render as unadorned plaintext without tokenization
+const PLAIN_TEXT_LANGUAGES = new Set([
+  'plaintext', 'text', 'txt', 'none', 'raw', 'nohighlight', 'no-highlight'
+]);
+
+// Languages that follow markdown formatting conventions rather than procedural code
+const MARKDOWN_LANGUAGES = new Set([
+  'markdown', 'md', 'mkd', 'mdx'
+]);
+
 // Boolean and null constants get their own token type so themes can colour them
 // distinctly (highlight.js uses hljs-literal for true/false/null/None/nil).
 const LITERALS = ['true', 'false', 'null', 'None', 'True', 'False', 'nil'].join('|');
+
+// Markdown structure regex: highlights document structure without false-positive keyword tagging
+const MARKDOWN_REGEX = new RegExp(
+  '(?<comment><!--[\\s\\S]*?-->)' +
+  '|(?<section>^#{1,6}[ \\t][^\\r\\n]*)' +
+  '|(?<code>```[\\s\\S]*?```|`[^`\\r\\n]+`)' +
+  '|(?<quote>^[ \\t]*>[ \\t]?[^\\r\\n]*)' +
+  '|(?<bullet>^[ \\t]*(?:[-*+]|\\d+\\.)[ \\t])' +
+  '|(?<strong>\\*\\*[^\\*\\r\\n]+\\*\\*|__[^_\\r\\n]+__)' +
+  '|(?<emphasis>\\*[^\\*\\r\\n]+\\*|_[^_\\r\\n]+_)' +
+  '|(?<link>\\[[^\\]\\r\\n]+\\]\\([^\\)\\r\\n]+\\))' +
+  '|(?<tag><\\/?[a-zA-Z0-9_-]+(?:\\s+[^>]*?)?>)',
+  'gm'
+);
 
 // We use named capture groups so we can easily map matches back to their token types.
 // Order is critical: comments first, then strings, then numbers, then keywords, etc.
@@ -53,7 +77,7 @@ const UNIVERSAL_REGEX = new RegExp(
 
 export interface HighlightOptions {
   /**
-   * Used strictly for class attribution, does not change the heuristic tokenization.
+   * Target language for heuristic tokenization or bypass.
    */
   language?: string;
   /**
@@ -63,11 +87,28 @@ export interface HighlightOptions {
 }
 
 export function highlight(code: string, options: HighlightOptions = {}): { value: string; language: string } {
+  const rawLang = options.language ? String(options.language).trim() : '';
+  const langKey = rawLang.toLowerCase();
+
+  // 1. Plaintext bypass: return securely escaped text with zero span tags
+  if (langKey && PLAIN_TEXT_LANGUAGES.has(langKey)) {
+    return {
+      value: escapeHtml(code),
+      language: rawLang
+    };
+  }
+
   const isHljs = options.mimicHljs !== false;
+  const isMarkdown = Boolean(langKey && MARKDOWN_LANGUAGES.has(langKey));
+  const activeRegex = isMarkdown ? MARKDOWN_REGEX : UNIVERSAL_REGEX;
+
+  // Reset regex state for global regexes
+  activeRegex.lastIndex = 0;
+
   let result = '';
   let lastIndex = 0;
 
-  for (const match of code.matchAll(UNIVERSAL_REGEX)) {
+  for (const match of code.matchAll(activeRegex)) {
     const start = match.index!;
     const text = match[0];
     const groups = match.groups!;
@@ -96,6 +137,14 @@ export function highlight(code: string, options: HighlightOptions = {}): { value
       else if (tokenType === 'property') className = 'attr';
       else if (tokenType === 'operator') className = 'operator';
       else if (tokenType === 'variable') className = 'variable';
+      else if (tokenType === 'section') className = 'section';
+      else if (tokenType === 'bullet') className = 'bullet';
+      else if (tokenType === 'quote') className = 'quote';
+      else if (tokenType === 'strong') className = 'strong';
+      else if (tokenType === 'emphasis') className = 'emphasis';
+      else if (tokenType === 'code') className = 'code';
+      else if (tokenType === 'link') className = 'link';
+      else if (tokenType === 'tag') className = 'tag';
 
       className = `hljs-${className}`;
     }
@@ -110,7 +159,7 @@ export function highlight(code: string, options: HighlightOptions = {}): { value
 
   return {
     value: result,
-    language: options.language || 'plaintext'
+    language: rawLang || 'plaintext'
   };
 }
 
